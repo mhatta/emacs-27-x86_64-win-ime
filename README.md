@@ -6,7 +6,7 @@ GNU Emacs 26.1を、Windows向けに64bitでビルドしたものです。[公�
 
 ## 実行方法
 
-zipアーカイヴを展開し、`emacs-26.1\bin\runemacs.exe` を実行してください。
+ダウンロードしたzipアーカイヴを展開し、`emacs-26.1\bin\runemacs.exe` を実行してください。
 
 ## ビルド方法
 
@@ -40,7 +40,7 @@ $ pacman -S --needed base-devel \
 
 ### Emacsのソースコードをダウンロード
 
-MSYS2のシェルから`$ wget http://ftpmirror.gnu.org/emacs/emacs-26.1.tar.xz`を実行してEmacsのソースコードをダウンロードし、`$ tar xJf emacs-26.1.tar.xz`で展開します。`c:\` の直下に展開（`c:\emacs-26.1` のように）するのがよいでしょう
+MSYS2のシェルから`$ wget http://ftpmirror.gnu.org/emacs/emacs-26.1.tar.xz`を実行してEmacsのソースコードをダウンロードし、`$ tar xJf emacs-26.1.tar.xz`で展開します。`c:\` の直下に展開（`c:\emacs-26.1` のように）するのがよいでしょう。
 
 ### IMEパッチを当てる
 
@@ -61,7 +61,7 @@ configure`を実行します。
 $ CFLAGS='-O2 -march=x86-64 -mtune=generic -static -s -g0' LDFLAGS='-s' ./configure --prefix=/c/emacs-26.1 --without-dbus --without-compress-install --with-modules
 ```
 
-[chuntaroさんのビルド](https://github.com/chuntaro/NTEmacs64)ではCFLAGSに`-Ofast -march=x86-64 -mtune=corei7`を与えてコンパイルしていますが、[このあたりの議論](https://www.reddit.com/r/emacs/comments/7gex1q/emacs_64bit_for_windows_with_imagemagick_7/)を見ると`-O2`のほうがパフォーマンスが良いらしいので、`-O2`に戻しました。
+[chuntaroさんのビルド](https://github.com/chuntaro/NTEmacs64)ではCFLAGSに`-Ofast -march=x86-64 -mtune=corei7`を与えてコンパイルしていますが、[このあたりの議論](https://www.reddit.com/r/emacs/comments/7gex1q/emacs_64bit_for_windows_with_imagemagick_7/)を見るとEmacsの場合は`-O2`のほうがパフォーマンスが良いらしいので、`-O2`に戻しました。
 
 `configure`が終わったら、
 
@@ -73,4 +73,4 @@ $ make bootstrap; make install-strip
 
 ### DLLのコピー
 
-ビルドしたバイナリをMSYS2がインストールされていないマシンで使うには、MSYS2から必要なDLLを`c:\emacs-26.1\bin`以下にコピーして持っていく必要があります。このレポジトリにある `$ ./msys2-dll-copy.sh` を使うと良いでしょう。必要なDLLだけを入れたつもりですが、抜けがあるかもしれませんので、その場合は自分でコピーしてください。DLLの依存関係に関しては、[Dependency Walker](http://www.dependencywalker.com/)を使うと分かります。
+ビルドしたバイナリをMSYS2がインストールされていないマシンで使うには、MSYS2から必要なDLLを`c:\emacs-26.1\bin`以下にコピーして持っていく必要があります。このレポジトリにある `$ ./msys2-dll-copy.sh` を使うと良いでしょう。配付しているzipアーカイヴには必要なDLLだけを入れたつもりですが、抜けがあるかもしれませんので、その場合は自分でコピーしてください。DLLの依存関係に関しては、[Dependency Walker](http://www.dependencywalker.com/)を使うと分かります。
