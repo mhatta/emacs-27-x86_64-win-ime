@@ -17,6 +17,9 @@ GNU Emacs 26.1を、Windows向けに64bitでビルドしたものです。[公�
         - [IMEパッチを当てる](#imeパッチを当てる)
         - [configureとmake](#configureとmake)
         - [DLLのコピー](#dllのコピー)
+    - [バグなど](#バグなど)
+        - [日本語入力がオンにならない](#日本語入力がオンにならない)
+        - [ImageMagick7への対応](#imagemagick7への対応)
 
 <!-- markdown-toc end -->
 
@@ -26,7 +29,10 @@ GNU Emacs 26.1を、Windows向けに64bitでビルドしたものです。[公�
 
 ### .emacs.elの設定
 
+私は以下の設定で使っています。
+
 ``` emacs-lisp
+  ;; Windows IME
   (setq default-input-method "W32-IME")
   (setq-default w32-ime-mode-line-state-indicator "[--]")
   (setq w32-ime-mode-line-state-indicator-list '("[--]" "[あ]" "[--]"))
@@ -56,6 +62,8 @@ GNU Emacs 26.1を、Windows向けに64bitでビルドしたものです。[公�
 ## ビルド方法
 
 ビルド方法は基本的に[https://github.com/chuntaro/NTEmacs64](https://github.com/chuntaro/NTEmacs64)を踏襲しています。大体一式で3～4GB程度の空き容量が必要のようです。なお、当方は64bit版の Windows 10 Pro 1803（Build 17134.112）上でビルドしています。
+
+なお、画像に関してはGIF, JPEG, PNG, SVG, TIFF, XPMに対応しています（後述しますが、ImageMagickは組み込んでいません）。GNUTLSにも対応していますので、Emacs Lispで書かれたウェブブラウザewwも動作します。
 
 ### MSYS2のインストール
 
@@ -119,3 +127,17 @@ $ make bootstrap; make install-strip
 ### DLLのコピー
 
 ビルドしたバイナリをMSYS2がインストールされていないマシンで使うには、MSYS2から必要なDLLを`c:\emacs-26.1\bin`以下にコピーして持っていく必要があります。このレポジトリにある `msys2-dll-copy.sh` を使うと良いでしょう。配付しているzipアーカイヴには必要なDLLを入れたつもりですが、抜けがあるかもしれませんので、その場合は自分でコピーしてください。DLLの依存関係に関しては、[Dependency Walker](http://www.dependencywalker.com/)を使うと分かります。
+
+## バグなど
+
+このビルドに関して何かお気づきの点があれば、[issues](https://github.com/mhatta/emacs-26-x86_64-win-ime/issues)で報告してください。
+
+### 日本語入力がオンにならない
+
+最近のWindows 10の更新（1803?）で何かおかしくなったらしく、半角/全角キー等を押してIMEをオンにしようとしても日本語入力が有効にならないという問題が発生しています。一度マウスでEmacsのウィンドウを移動したり、リサイズすると直るようです。[ここでの議論](https://github.com/chuntaro/NTEmacs64/issues/3)を参照してください。
+
+### ImageMagick7への対応
+
+Emacsは26.1の時点でもImageMagick6までの対応で、バージョン7には対応していません。よってこのビルドにもImageMagickは組み込んでいません。
+
+一応ImageMagick7に対応させるパッチは用意しましたが、思ったように動かないので、パッチのみの提供とします。興味のある方は試してみてください。

@@ -1,0 +1,354 @@
+diff -urN emacs-26.1.orig/configure.ac emacs-26.1/configure.ac
+--- emacs-26.1.orig/configure.ac	2018-06-16 16:34:26.117513900 +0900
++++ emacs-26.1/configure.ac	2018-06-19 11:48:16.565545200 +0900
+@@ -2524,7 +2524,7 @@
+     ## 6.3.5 is the earliest version known to work; see Bug#17339.
+     ## 6.8.2 makes Emacs crash; see Bug#13867.
+     ## 7 and later have not been ported to; See Bug#25967.
+-    IMAGEMAGICK_MODULE="Wand >= 6.3.5 Wand != 6.8.2 Wand < 7"
++    IMAGEMAGICK_MODULE="MagickWand >= 6.3.5 MagickWand != 6.8.2"
+     EMACS_CHECK_MODULES([IMAGEMAGICK], [$IMAGEMAGICK_MODULE])
+ 
+     if test $HAVE_IMAGEMAGICK = yes; then
+diff -urN emacs-26.1.orig/lisp/loadup.el emacs-26.1/lisp/loadup.el
+--- emacs-26.1.orig/lisp/loadup.el	2018-06-16 16:34:17.634199000 +0900
++++ emacs-26.1/lisp/loadup.el	2018-06-19 11:42:45.442779300 +0900
+@@ -284,6 +284,7 @@
+       (load "term/w32-win")
+       (load "disp-table")
+       (when (eq system-type 'windows-nt)
++        (load "image")
+         (load "w32-fns")
+         (load "ls-lisp")
+         (load "dos-w32"))))
+diff -urN emacs-26.1.orig/lisp/term/w32-win.el emacs-26.1/lisp/term/w32-win.el
+--- emacs-26.1.orig/lisp/term/w32-win.el	2018-06-16 16:34:25.050335300 +0900
++++ emacs-26.1/lisp/term/w32-win.el	2018-06-19 11:42:45.458407200 +0900
+@@ -271,6 +271,8 @@
+        '(gdk-pixbuf "libgdk_pixbuf-2.0-0.dll")
+        '(glib "libglib-2.0-0.dll")
+        '(gobject "libgobject-2.0-0.dll")
++       '(magickwand "libMagickWand-7.Q16HDRI-5.dll" "libMagickWand-7.Q16-5.dll")
++       '(magickcore "libMagickCore-7.Q16HDRI-5.dll" "libMagickCore-7.Q16-5.dll")
+        (if (>= libgnutls-version 30400)
+ 	   '(gnutls "libgnutls-30.dll")
+ 	 '(gnutls "libgnutls-28.dll" "libgnutls-26.dll"))
+diff -urN emacs-26.1.orig/src/image.c emacs-26.1/src/image.c
+--- emacs-26.1.orig/src/image.c	2018-06-16 16:34:26.913640600 +0900
++++ emacs-26.1/src/image.c	2018-06-19 11:42:45.474048400 +0900
+@@ -3179,6 +3179,8 @@
+ #ifdef CYGWIN
+ #include "noX/xpm.h"
+ #else  /* not CYGWIN */
++#undef close
++#undef open
+ #include "X11/xpm.h"
+ #endif	/* not CYGWIN */
+ #undef FOR_MSW
+@@ -8270,16 +8272,249 @@
+ /* The GIF library also defines DrawRectangle, but its never used in Emacs.
+    Therefore rename the function so it doesn't collide with ImageMagick.  */
+ #define DrawRectangle DrawRectangleGif
++#ifdef __MINGW64__
++#include <ImageMagick-7/MagickWand/MagickWand.h>
++#else
+ #include <wand/MagickWand.h>
++#endif
+ 
+ /* ImageMagick 6.5.3 through 6.6.5 hid PixelGetMagickColor for some reason.
+    Emacs seems to work fine with the hidden version, so unhide it.  */
++#ifdef __MINGW64__
++#include <ImageMagick-7/MagickCore/version.h>
++#else
+ #include <magick/version.h>
++#endif
+ #if 0x653 <= MagickLibVersion && MagickLibVersion <= 0x665
+ extern WandExport void PixelGetMagickColor (const PixelWand *,
+ 					    MagickPixelPacket *);
+ #endif
+ 
++#ifdef WINDOWSNT
++DEF_DLL_FN (MagickWand *, CloneMagickWand, (const MagickWand *));
++DEF_DLL_FN (MagickWand *, DestroyMagickWand, (MagickWand *));
++DEF_DLL_FN (MagickWand *, DestroyPixelIterator, (PixelIterator *));
++DEF_DLL_FN (PixelWand *, DestroyPixelWand, (PixelWand *));
++DEF_DLL_FN (MagickBooleanType, MagickCropImage, (MagickWand *, const size_t, const size_t, const ssize_t, const ssize_t));
++#ifdef HAVE_MAGICKEXPORTIMAGEPIXELS
++DEF_DLL_FN (MagickBooleanType, MagickExportImagePixels, (MagickWand *, const ssize_t, const ssize_t, const size_t, const size_t, const char *, const StorageType, void *));
++#endif
++DEF_DLL_FN (char *, MagickGetException, (const MagickWand *, ExceptionType *));
++DEF_DLL_FN (MagickWand *, MagickGetImage, (MagickWand *));
++DEF_DLL_FN (DisposeType, MagickGetImageDelay, (MagickWand *));
++DEF_DLL_FN (DisposeType, MagickGetImageDispose, (MagickWand *));
++DEF_DLL_FN (size_t, MagickGetImageHeight, (MagickWand *));
++DEF_DLL_FN (MagickBooleanType, MagickGetImagePage, (MagickWand *, size_t *, size_t *, ssize_t *, ssize_t *));
++DEF_DLL_FN (char *, MagickGetImageSignature, (MagickWand *));
++DEF_DLL_FN (size_t, MagickGetImageWidth, (MagickWand *));
++DEF_DLL_FN (size_t, MagickGetNumberImages, (MagickWand *));
++#ifdef HAVE_MAGICKMERGEIMAGELAYERS
++DEF_DLL_FN (MagickWand *, MagickMergeImageLayers, (MagickWand *, const LayerMethod));
++#else
++DEF_DLL_FN (MagickWand *, MagickFlattenImages, (MagickWand *));
++#endif
++DEF_DLL_FN (MagickBooleanType, MagickReadImage, (MagickWand *, const char *));
++DEF_DLL_FN (MagickBooleanType, MagickReadImageBlob, (MagickWand *, const void *, const size_t));
++DEF_DLL_FN (void *, MagickRelinquishMemory, (void *));
++DEF_DLL_FN (MagickBooleanType, MagickRotateImage, (MagickWand *, const PixelWand *, const double));
++DEF_DLL_FN (MagickBooleanType, MagickScaleImage, (MagickWand *, const size_t, const size_t));
++DEF_DLL_FN (MagickBooleanType, MagickSetFilename, (MagickWand *, const char *));
++DEF_DLL_FN (MagickBooleanType, MagickSetImageBackgroundColor, (MagickWand *, const PixelWand *));
++DEF_DLL_FN (MagickBooleanType, MagickSetIteratorIndex, (MagickWand *, const ssize_t));
++DEF_DLL_FN (void, MagickWandGenesis, (void));
++DEF_DLL_FN (void, MagickWandTerminus, (void));
++DEF_DLL_FN (MagickWand *, NewMagickWand, (void));
++DEF_DLL_FN (PixelIterator *, NewPixelIterator, (MagickWand *));
++DEF_DLL_FN (PixelWand *, NewPixelWand, (void));
++DEF_DLL_FN (double, PixelGetAlpha, (const PixelWand *));
++DEF_DLL_FN (void, PixelGetMagickColor, (const PixelWand *, PixelInfo *));
++DEF_DLL_FN (PixelWand **, PixelGetNextIteratorRow, (PixelIterator *, size_t *));
++DEF_DLL_FN (MagickBooleanType, PixelSetIteratorRow, (PixelIterator *, const ssize_t));
++DEF_DLL_FN (void, PixelSetPixelColor, (PixelWand *, const PixelInfo *));
++DEF_DLL_FN (void, PixelSetRed, (PixelWand *, const double));
++DEF_DLL_FN (void, PixelSetGreen, (PixelWand *, const double));
++DEF_DLL_FN (void, PixelSetBlue, (PixelWand *, const double));
++DEF_DLL_FN (MagickBooleanType, PixelSyncIterator, (PixelIterator *));
++
++DEF_DLL_FN (ExceptionInfo *, DestroyExceptionInfo, (ExceptionInfo *));
++DEF_DLL_FN (char *, DestroyString, (char *));
++DEF_DLL_FN (ExceptionInfo *, AcquireExceptionInfo, ());
++DEF_DLL_FN (char **, GetMagickList, (const char *, size_t *, ExceptionInfo *));
++
++static bool
++init_imagemagick_functions (void)
++{
++  HMODULE magickwand, magickcore;
++
++  /* Override ImageMgick settings to use the one packaged with Emacs. */
++  char buf[512];
++  char *var_format[] = {
++    "MAGICK_CONFIGURE_PATH=%s/lib/ImageMagick-7.0.7/config-Q16HDRI/",
++    "MAGICK_CODER_MODULE_PATH=%s/lib/ImageMagick-7.0.7/modules-Q16HDRI/coders/",
++    "MAGICK_FILTER_MODULE_PATH=%s/lib/ImageMagick-7.0.7/modules-Q16HDRI/filters/",
++#if 0
++    "MAGICK_DOCUMENTATION_PATH=%s/share/doc/ImageMagick-7/",
++    "MAGICK_EXECUTABLE_PATH=%s/bin",
++    "MAGICK_SHARE_PATH=%s/share/ImageMagick-7",
++    "MAGICK_SHAREARCH_PATH=%s/lib/ImageMagick-7.0.7/config-Q16HDRI",
++#endif
++    NULL
++  };
++  /* FIXME: assumes emacs is in bin directory */
++  char *emacs_dir = SSDATA(Fdirectory_file_name(Fexpand_file_name(build_string("../"), Vinvocation_directory)));
++
++  for (int i = 0; var_format[i] != NULL; i++) {
++    sprintf(buf, var_format[i], emacs_dir);
++    xputenv(buf);
++  };
++
++  if (!(magickcore = w32_delayed_load (Qmagickcore))
++      || !(magickwand = w32_delayed_load (Qmagickwand)))
++    return 0;
++
++  LOAD_DLL_FN (magickwand, CloneMagickWand);
++  LOAD_DLL_FN (magickwand, DestroyMagickWand);
++  LOAD_DLL_FN (magickwand, DestroyPixelIterator);
++  LOAD_DLL_FN (magickwand, DestroyPixelWand);
++  LOAD_DLL_FN (magickwand, MagickCropImage);
++#ifdef HAVE_MAGICKEXPORTIMAGEPIXELS
++  LOAD_DLL_FN (magickwand, MagickExportImagePixels);
++#endif
++  LOAD_DLL_FN (magickwand, MagickGetException);
++  LOAD_DLL_FN (magickwand, MagickGetImage);
++  LOAD_DLL_FN (magickwand, MagickGetImageDelay);
++  LOAD_DLL_FN (magickwand, MagickGetImageDispose);
++  LOAD_DLL_FN (magickwand, MagickGetImageHeight);
++  LOAD_DLL_FN (magickwand, MagickGetImagePage);
++  LOAD_DLL_FN (magickwand, MagickGetImageSignature);
++  LOAD_DLL_FN (magickwand, MagickGetImageWidth);
++  LOAD_DLL_FN (magickwand, MagickGetNumberImages);
++#ifdef HAVE_MAGICKMERGEIMAGELAYERS
++  LOAD_DLL_FN (magickwand, MagickMergeImageLayers);
++#else
++  LOAD_DLL_FN (magickwand, MagickFlattenImages);
++#endif
++  LOAD_DLL_FN (magickwand, MagickReadImage);
++  LOAD_DLL_FN (magickwand, MagickReadImageBlob);
++  LOAD_DLL_FN (magickwand, MagickRelinquishMemory);
++  LOAD_DLL_FN (magickwand, MagickRotateImage);
++  LOAD_DLL_FN (magickwand, MagickScaleImage);
++  LOAD_DLL_FN (magickwand, MagickSetFilename);
++  LOAD_DLL_FN (magickwand, MagickSetImageBackgroundColor);
++  LOAD_DLL_FN (magickwand, MagickSetIteratorIndex);
++  LOAD_DLL_FN (magickwand, MagickWandGenesis);
++  LOAD_DLL_FN (magickwand, MagickWandTerminus);
++  LOAD_DLL_FN (magickwand, NewMagickWand);
++  LOAD_DLL_FN (magickwand, NewPixelIterator);
++  LOAD_DLL_FN (magickwand, NewPixelWand);
++  LOAD_DLL_FN (magickwand, PixelGetAlpha);
++  LOAD_DLL_FN (magickwand, PixelGetMagickColor);
++  LOAD_DLL_FN (magickwand, PixelGetNextIteratorRow);
++  LOAD_DLL_FN (magickwand, PixelSetIteratorRow);
++  LOAD_DLL_FN (magickwand, PixelSetPixelColor);
++  LOAD_DLL_FN (magickwand, PixelSetRed);
++  LOAD_DLL_FN (magickwand, PixelSetGreen);
++  LOAD_DLL_FN (magickwand, PixelSetBlue);
++  LOAD_DLL_FN (magickwand, PixelSyncIterator);
++
++  LOAD_DLL_FN (magickcore, DestroyExceptionInfo);
++  LOAD_DLL_FN (magickcore, DestroyString);
++  LOAD_DLL_FN (magickcore, AcquireExceptionInfo);
++  LOAD_DLL_FN (magickcore, GetMagickList);
++
++  return 1;
++}
++
++#undef CloneMagickWand
++#undef DestroyMagickWand
++#undef DestroyPixelIterator
++#undef DestroyPixelWand
++#undef MagickCropImage
++#undef MagickExportImagePixels
++#undef MagickGetException
++#undef MagickGetImage
++#undef MagickGetImageDelay
++#undef MagickGetImageDispose
++#undef MagickGetImageHeight
++#undef MagickGetImagePage
++#undef MagickGetImageSignature
++#undef MagickGetImageWidth
++#undef MagickGetNumberImages
++#undef MagickMergeImageLayers
++#undef MagickFlattenImages
++#undef MagickReadImage
++#undef MagickReadImageBlob
++#undef MagickRelinquishMemory
++#undef MagickRotateImage
++#undef MagickScaleImage
++#undef MagickSetFilename
++#undef MagickSetImageBackgroundColor
++#undef MagickSetIteratorIndex
++#undef MagickWandGenesis
++#undef MagickWandTerminus
++#undef NewMagickWand
++#undef NewPixelIterator
++#undef NewPixelWand
++#undef PixelGetAlpha
++#undef PixelGetMagickColor
++#undef PixelGetNextIteratorRow
++#undef PixelSetIteratorRow
++#undef PixelSetPixelColor
++#undef PixelSetRed
++#undef PixelSetGreen
++#undef PixelSetBlue
++#undef PixelSyncIterator
++#undef DestroyExceptionInfo
++#undef DestroyString
++#undef AcquireExceptionInfo
++#undef GetMagickList
++
++#define CloneMagickWand fn_CloneMagickWand
++#define DestroyMagickWand fn_DestroyMagickWand
++#define DestroyPixelIterator fn_DestroyPixelIterator
++#define DestroyPixelWand fn_DestroyPixelWand
++#define MagickCropImage fn_MagickCropImage
++#define MagickExportImagePixels fn_MagickExportImagePixels
++#define MagickGetException fn_MagickGetException
++#define MagickGetImage fn_MagickGetImage
++#define MagickGetImageDelay fn_MagickGetImageDelay
++#define MagickGetImageDispose fn_MagickGetImageDispose
++#define MagickGetImageHeight fn_MagickGetImageHeight
++#define MagickGetImagePage fn_MagickGetImagePage
++#define MagickGetImageSignature fn_MagickGetImageSignature
++#define MagickGetImageWidth fn_MagickGetImageWidth
++#define MagickGetNumberImages fn_MagickGetNumberImages
++#define MagickMergeImageLayers fn_MagickMergeImageLayers
++#define MagickFlattenImages fn_MagickFlattenImages
++#define MagickReadImage fn_MagickReadImage
++#define MagickReadImageBlob fn_MagickReadImageBlob
++#define MagickRelinquishMemory fn_MagickRelinquishMemory
++#define MagickRotateImage fn_MagickRotateImage
++#define MagickScaleImage fn_MagickScaleImage
++#define MagickSetFilename fn_MagickSetFilename
++#define MagickSetImageBackgroundColor fn_MagickSetImageBackgroundColor
++#define MagickSetIteratorIndex fn_MagickSetIteratorIndex
++#define MagickWandGenesis fn_MagickWandGenesis
++#define MagickWandTerminus fn_MagickWandTerminus
++#define NewMagickWand fn_NewMagickWand
++#define NewPixelIterator fn_NewPixelIterator
++#define NewPixelWand fn_NewPixelWand
++#define PixelGetAlpha fn_PixelGetAlpha
++#define PixelGetMagickColor fn_PixelGetMagickColor
++#define PixelGetNextIteratorRow fn_PixelGetNextIteratorRow
++#define PixelSetIteratorRow fn_PixelSetIteratorRow
++#define PixelSetPixelColor fn_PixelSetPixelColor
++#define PixelSetRed fn_PixelSetRed
++#define PixelSetGreen fn_PixelSetGreen
++#define PixelSetBlue fn_PixelSetBlue
++#define PixelSyncIterator fn_PixelSyncIterator
++#define DestroyExceptionInfo fn_DestroyExceptionInfo
++#define DestroyString fn_DestroyString
++#define AcquireExceptionInfo fn_AcquireExceptionInfo
++#define GetMagickList fn_GetMagickList
++
++#endif /* !WINDOWSNT */
++
+ /* Log ImageMagick error message.
+    Useful when an ImageMagick function returns the status `MagickFalse'.  */
+ 
+@@ -8432,7 +8667,7 @@
+       PixelWand **source, **dest;
+       size_t source_width, source_height;
+       ssize_t source_left, source_top;
+-      MagickPixelPacket pixel;
++      PixelInfo pixel;
+       DisposeType dispose;
+       ptrdiff_t lines = 0;
+ 
+@@ -8497,7 +8732,7 @@
+ 	      if (dispose == BackgroundDispose || PixelGetAlpha (source[x]))
+ 		{
+ 		  PixelGetMagickColor (source[x], &pixel);
+-		  PixelSetMagickColor (dest[x + source_left], &pixel);
++		  PixelSetPixelColor (dest[x + source_left], &pixel);
+ 		}
+ 	    }
+ 	  PixelSyncIterator (dest_iterator);
+@@ -8542,7 +8777,7 @@
+   MagickWand *image_wand;
+   PixelIterator *iterator;
+   PixelWand **pixels, *bg_wand = NULL;
+-  MagickPixelPacket  pixel;
++  PixelInfo  pixel;
+   Lisp_Object image;
+   Lisp_Object value;
+   Lisp_Object crop;
+@@ -8945,6 +9180,11 @@
+   char **imtypes;
+   size_t i;
+ 
++#if WINDOWSNT
++          if (!init_imagemagick_functions ())
++            return Qnil;
++#endif
++
+   ex = AcquireExceptionInfo ();
+   imtypes = GetMagickList ("*", &numf, ex);
+   DestroyExceptionInfo (ex);
+@@ -9959,12 +10199,16 @@
+ #if defined (HAVE_IMAGEMAGICK)
+   DEFSYM (Qimagemagick, "imagemagick");
+   ADD_IMAGE_TYPE (Qimagemagick);
++#if defined HAVE_NTGUI && !defined CYGWIN
++  DEFSYM (Qmagickwand, "magickwand");
++  DEFSYM (Qmagickcore, "magickcore");
++#endif /* HAVE_NTGUI */
+ #endif
+ 
+ #if defined (HAVE_RSVG)
+   DEFSYM (Qsvg, "svg");
+   ADD_IMAGE_TYPE (Qsvg);
+-#ifdef HAVE_NTGUI
++#if defined (HAVE_NTGUI) && !defined (CYGWIN)
+   /* Other libraries used directly by svg code.  */
+   DEFSYM (Qgdk_pixbuf, "gdk-pixbuf");
+   DEFSYM (Qglib, "glib");
