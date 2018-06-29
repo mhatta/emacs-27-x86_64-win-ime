@@ -17,7 +17,7 @@ GNU Emacs 26.1を、Windows向けに64bitでビルドしたものです。[公�
         - [IMEパッチを当てる](#imeパッチを当てる)
         - [configureとmake](#configureとmake)
         - [DLLのコピー](#dllのコピー)
-        - [cmigemo](#cmigemo)
+            - [おまけ C/Migemo](#おまけ-cmigemo)
     - [バグなど](#バグなど)
         - [configureのエラーでビルドできない](#configureのエラーでビルドできない)
         - [なぜか処理が途中で止まる](#なぜか処理が途中で止まる)
