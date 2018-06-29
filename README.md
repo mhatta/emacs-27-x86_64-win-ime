@@ -1,4 +1,4 @@
-# 64bit版 GNU Emacs 26.1 for Windows（w/ IMEパッチ）
+## 64bit版 GNU Emacs 26.1 for Windows（w/ IMEパッチ）
 
 GNU Emacs 26.1を、Windows向けに64bitでビルドしたものです。[公式のWindowsビルド](http://ftpmirror.gnu.org/emacs/windows/)の同等物に、いわゆるIMEパッチを当てています。よってストレス無く日本語入力できると思いますが、いきなり落ちたりする可能性もありますので、注意してお使いください。
 
