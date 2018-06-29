@@ -1,4 +1,4 @@
-## 64bit版 GNU Emacs 26.1 for Windows（w/ IMEパッチ）
+# 64bit版 GNU Emacs 26.1 for Windows（w/ IMEパッチ）
 
 GNU Emacs 26.1を、Windows向けに64bitでビルドしたものです。[公式のWindowsビルド](http://ftpmirror.gnu.org/emacs/windows/)の同等物に、いわゆるIMEパッチを当てています。よってストレス無く日本語入力できると思いますが、いきなり落ちたりする可能性もありますので、注意してお使いください。
 
@@ -27,7 +27,7 @@ GNU Emacs 26.1を、Windows向けに64bitでビルドしたものです。[公�
 
 ダウンロードしたzipアーカイヴを展開し、`emacs-26.1\bin\runemacs.exe` を実行してください。
 
-### .emacs.elの設定
+### init.elの設定
 
 私は以下の設定で使っています。
 
@@ -128,9 +128,21 @@ $ make bootstrap; make install-strip
 
 ビルドしたバイナリをMSYS2がインストールされていないマシンで使うには、MSYS2から必要なDLLを`c:\emacs-26.1\bin`以下にコピーして持っていく必要があります。このレポジトリにある `msys2-dll-copy.sh` を使うと良いでしょう。配付しているzipアーカイヴには必要なDLLを入れたつもりですが、抜けがあるかもしれませんので、その場合は自分でコピーしてください。DLLの依存関係に関しては、[Dependency Walker](http://www.dependencywalker.com/)を使うと分かります。
 
+### cmigemo
+
+ローマ字で日本語のインクリメンタル検索ができる[C/Migemo](https://github.com/koron/cmigemo)は大変便利なツールですが、最新版の64bit版Windows用バイナリがないようなので用意しました。
+
 ## バグなど
 
 このビルドに関して何かお気づきの点があれば、[issues](https://github.com/mhatta/emacs-26-x86_64-win-ime/issues)で報告してください。
+
+### configureのエラーでビルドできない
+
+`configure`で`emacs does not support 'x86_64-pc-msys' systems`というようなエラーが出てビルドできない場合、WindowsのPATHがMSYS2に引き継がれておかしくなっている可能性があります。Windowsの環境変数で`MSYS2_PATH_TYPE=inherit`を指定している場合は、一時的にinheritではなくstrictやnone（inherit以外なら何でもよい）にしておくと良いでしょう。
+
+### なぜか処理が途中で止まる
+
+エラーや警告は出ないのにビルドが途中でフリーズしてしまう場合、アンチウイルスやランサムウェア対策のソフトウェアが悪さをしていることがあります。私の場合、Acronis Active Protectionが原因でした。OrgやAUC-TeXのような大規模なEmacs Lispパッケージをコンパイルする時も、一時的に膨大なファイルの書き込み、読み込みが行われるせいか、ランサムウェアと勘違いされて止められてしまうことがあるようです。これらはEmacsのビルドやパッケージのインストールの際には止めておいたほうがよいでしょう。
 
 ### 日本語入力がオンにならない
 
@@ -141,3 +153,5 @@ $ make bootstrap; make install-strip
 Emacsは26.1の時点でもImageMagick6までの対応で、バージョン7には対応していません。よってこのビルドにもImageMagickは組み込んでいません。
 
 一応ImageMagick7に対応させるパッチは用意しましたが、思ったように動かないので、パッチのみの提供とします。興味のある方は試してみてください。
+
+ちなみに、問題はEmacsではなく、MSYS2のImageMagick7がまともに動作していないことにあるようです。[このあたりの議論](https://github.com/Alexpux/MINGW-packages/issues/1885)を参照してください。なお、pdf-toolsを使うのにEmacs側のImageMagickサポートは必要ありません。
