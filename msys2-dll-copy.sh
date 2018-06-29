@@ -46,8 +46,8 @@ cp /c/msys64/mingw64/bin/libxml2-2.dll /c/emacs-26.1/bin
 cp /c/msys64/mingw64/bin/zlib1.dll /c/emacs-26.1/bin
 
 # if you want ImageMagick
-#cp /c/msys64/mingw64/bin/libMagickCore-7.Q16HDRI-5.dll /c/emacs-26.1/bin
-#cp /c/msys64/mingw64/bin/libMagickWand-7.Q16HDRI-5.dll /c/emacs-26.1/bin
+#cp /c/msys64/mingw64/bin/libMagickCore-7.Q16HDRI-6.dll /c/emacs-26.1/bin
+#cp /c/msys64/mingw64/bin/libMagickWand-7.Q16HDRI-6.dll /c/emacs-26.1/bin
 #cp /c/msys64/mingw64/bin/libfftw3-3.dll /c/emacs-26.1/bin
 #cp /c/msys64/mingw64/bin/libfribidi-0.dll /c/emacs-26.1/bin
 #cp /c/msys64/mingw64/bin/libgomp-1.dll /c/emacs-26.1/bin

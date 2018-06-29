@@ -9,7 +9,7 @@ GNU Emacs 26.1を、Windows向けに64bitでビルドしたものです。[公�
 
 - [64bit版 GNU Emacs 26.1 for Windows（w/ IMEパッチ）](#64bit版-gnu-emacs-261-for-windowsw-imeパッチ)
     - [実行方法](#実行方法)
-        - [.emacs.elの設定](#emacselの設定)
+        - [init.elの設定](#initelの設定)
     - [ビルド方法](#ビルド方法)
         - [MSYS2のインストール](#msys2のインストール)
         - [必要なパッケージのインストール](#必要なパッケージのインストール)
@@ -17,7 +17,10 @@ GNU Emacs 26.1を、Windows向けに64bitでビルドしたものです。[公�
         - [IMEパッチを当てる](#imeパッチを当てる)
         - [configureとmake](#configureとmake)
         - [DLLのコピー](#dllのコピー)
+        - [cmigemo](#cmigemo)
     - [バグなど](#バグなど)
+        - [configureのエラーでビルドできない](#configureのエラーでビルドできない)
+        - [なぜか処理が途中で止まる](#なぜか処理が途中で止まる)
         - [日本語入力がオンにならない](#日本語入力がオンにならない)
         - [ImageMagick7への対応](#imagemagick7への対応)
 
@@ -128,9 +131,19 @@ $ make bootstrap; make install-strip
 
 ビルドしたバイナリをMSYS2がインストールされていないマシンで使うには、MSYS2から必要なDLLを`c:\emacs-26.1\bin`以下にコピーして持っていく必要があります。このレポジトリにある `msys2-dll-copy.sh` を使うと良いでしょう。配付しているzipアーカイヴには必要なDLLを入れたつもりですが、抜けがあるかもしれませんので、その場合は自分でコピーしてください。DLLの依存関係に関しては、[Dependency Walker](http://www.dependencywalker.com/)を使うと分かります。
 
-### cmigemo
+#### おまけ C/Migemo ####
 
-ローマ字で日本語のインクリメンタル検索ができる[C/Migemo](https://github.com/koron/cmigemo)は大変便利なツールですが、最新版の64bit版Windows用バイナリがないようなので用意しました。
+ローマ字で日本語のインクリメンタル検索ができる[C/Migemo](https://github.com/koron/cmigemo)は大変便利なツールですが、GitHubにある最新版の64bit Windows用バイナリがないようなので用意しました。ダウンロードは[こちら](https://github.com/mhatta/emacs-26-x86_64-win-ime/raw/master/cmigemo-1.3-mingw64-20180629.zip)から。適当なところ（たとえば`C:\`）に展開した上で、`C:\cmigemo-mingw64\bin`にPATHを通し、MELPAから`migemo(-el)`をインストールした上で、
+
+``` emacs-lisp
+(require 'migemo)
+(setq migemo-command "cmigemo")
+(setq migemo-options '("-q" "-e"))
+(setq migemo-coding-system 'utf-8-unix)
+(setq migemo-dictionary "C:/cmigemo-mingw64/share/migemo/utf-8/migemo-dict")
+```
+
+などと設定してやれば使えます。
 
 ## バグなど
 
