@@ -1,13 +1,13 @@
-# 64bit版 GNU Emacs 26.1 for Windows（w/ IMEパッチ）
+# 64bit版 GNU Emacs 26.2 for Windows（w/ IMEパッチ）
 
-GNU Emacs 26.1を、Windows向けに64bitでビルドしたものです。[公式のWindowsビルド](http://ftpmirror.gnu.org/emacs/windows/)の同等物に、いわゆるIMEパッチを当てています。よってストレス無く日本語入力できると思いますが、いきなり落ちたりする可能性もありますので、注意してお使いください。
+GNU Emacs 26.2を、Windows向けに64bitでビルドしたものです。[公式のWindowsビルド](http://ftpmirror.gnu.org/emacs/windows/)の同等物に、いわゆるIMEパッチを当てています。よってストレス無く日本語入力できると思いますが、いきなり落ちたりする可能性もありますので、注意してお使いください。
 
-ダウンロードは[こちら](https://github.com/mhatta/emacs-26-x86_64-win-ime/raw/master/emacs-26.1-x86_64-win-ime-20180619.zip)から。
+ダウンロードは[こちら](https://github.com/mhatta/emacs-26-x86_64-win-ime/raw/master/emacs-26.2-x86_64-win-ime-20190508.zip)から。
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
-- [64bit版 GNU Emacs 26.1 for Windows（w/ IMEパッチ）](#64bit版-gnu-emacs-261-for-windowsw-imeパッチ)
+- [64bit版 GNU Emacs 26.2 for Windows（w/ IMEパッチ）](#64bit版-gnu-emacs-262-for-windowsw-imeパッチ)
     - [実行方法](#実行方法)
         - [init.elの設定](#initelの設定)
     - [ビルド方法](#ビルド方法)
@@ -22,13 +22,14 @@ GNU Emacs 26.1を、Windows向けに64bitでビルドしたものです。[公�
         - [configureのエラーでビルドできない](#configureのエラーでビルドできない)
         - [なぜか処理が途中で止まる](#なぜか処理が途中で止まる)
         - [日本語入力がオンにならない](#日本語入力がオンにならない)
+		- [ewwでhttpsなサイトが開けない](#ewwでhttpsなサイトが開けない)
         - [ImageMagick7への対応](#imagemagick7への対応)
 
 <!-- markdown-toc end -->
 
 ## 実行方法
 
-ダウンロードしたzipアーカイヴを展開し、`emacs-26.1\bin\runemacs.exe` を実行してください。
+ダウンロードしたzipアーカイヴを展開し、`emacs-26.2\bin\runemacs.exe` を実行してください。
 
 ### init.elの設定
 
@@ -64,7 +65,7 @@ GNU Emacs 26.1を、Windows向けに64bitでビルドしたものです。[公�
 
 ## ビルド方法
 
-ビルド方法は基本的に[https://github.com/chuntaro/NTEmacs64](https://github.com/chuntaro/NTEmacs64)を踏襲しています。大体一式で3～4GB程度の空き容量が必要のようです。なお、当方は64bit版の Windows 10 Pro 1803（Build 17134.112）上でビルドしています。
+ビルド方法は基本的に[https://github.com/chuntaro/NTEmacs64](https://github.com/chuntaro/NTEmacs64)を踏襲しています。大体一式で3～4GB程度の空き容量が必要のようです。なお、当方は64bit版の Windows 10 Pro 1809（Build 17763.475）上でビルドしています。
 
 なお、画像に関してはGIF, JPEG, PNG, SVG, TIFF, XPMに対応しています（後述しますが、ImageMagickは組み込んでいません）。GNUTLSにも対応していますので、Emacs Lispで書かれたウェブブラウザewwも動作します。
 
@@ -96,15 +97,15 @@ $ pacman -S --needed base-devel \
 
 ### Emacsのソースコードをダウンロード
 
-MSYS2のシェルから`$ wget http://ftpmirror.gnu.org/emacs/emacs-26.1.tar.xz`を実行してEmacsのソースコードをダウンロードし、`$ tar xJf emacs-26.1.tar.xz`で展開します。`c:\` の直下に展開（`c:\emacs-26.1` のように）するのがよいでしょう。
+MSYS2のシェルから`$ wget http://ftpmirror.gnu.org/emacs/emacs-26.2.tar.xz`を実行してEmacsのソースコードをダウンロードし、`$ tar xJf emacs-26.2.tar.xz`で展開します。`c:\` の直下に展開（`c:\emacs-26.2` のように）するのがよいでしょう。
 
 ### IMEパッチを当てる
 
-本レポジトリから`emacs-26.1-windows-ime-（日付）.patch`をダウンロードし、
+本レポジトリから`emacs-26.2-windows-ime-（日付）.patch`をダウンロードし、
 
 ```
-$ cd /c/emacs-26.1
-$ patch -p1 < /path/to/emacs-26.1-windows-ime-（日付）.patch
+$ cd /c/emacs-26.2
+$ patch -p1 < /path/to/emacs-26.2-windows-ime-（日付）.patch
 ```
 
 でパッチを当てます。その上で、`$ ./autogen.sh`を実行して`configure`スクリプトを更新してください。なお、このパッチは[rzl24oziさんが整理してくださったもの](https://gist.github.com/rzl24ozi/008d32c1f0742d3d2901295bf0366efa)をベースにしています。
@@ -114,7 +115,7 @@ $ patch -p1 < /path/to/emacs-26.1-windows-ime-（日付）.patch
 `configure`を実行します。
 
 ```
-$ CFLAGS='-O2 -march=x86-64 -mtune=generic -static -s -g0' LDFLAGS='-s' ./configure --prefix=/c/emacs-26.1 --without-dbus --without-compress-install --with-modules
+$ CFLAGS='-O2 -march=x86-64 -mtune=generic -static -s -g0' LDFLAGS='-s' ./configure --prefix=/c/emacs-26.2 --without-dbus --without-compress-install --with-modules
 ```
 
 [chuntaroさんのビルド](https://github.com/chuntaro/NTEmacs64)ではCFLAGSに`-Ofast -march=x86-64 -mtune=corei7`を与えてコンパイルしていますが、[このあたりの議論](https://www.reddit.com/r/emacs/comments/7gex1q/emacs_64bit_for_windows_with_imagemagick_7/)を見るとEmacsの場合は`-O2`のほうがパフォーマンスが良いらしいので、`-O2`に戻しました。
@@ -125,11 +126,11 @@ $ CFLAGS='-O2 -march=x86-64 -mtune=generic -static -s -g0' LDFLAGS='-s' ./config
 $ make bootstrap; make install-strip
 ```
 
-で`c:\emacs-26.1`以下にインストールされます。
+で`c:\emacs-26.2`以下にインストールされます。
 
 ### DLLのコピー
 
-ビルドしたバイナリをMSYS2がインストールされていないマシンで使うには、MSYS2から必要なDLLを`c:\emacs-26.1\bin`以下にコピーして持っていく必要があります。このレポジトリにある `msys2-dll-copy.sh` を使うと良いでしょう。配付しているzipアーカイヴには必要なDLLを入れたつもりですが、抜けがあるかもしれませんので、その場合は自分でコピーしてください。DLLの依存関係に関しては、[Dependency Walker](http://www.dependencywalker.com/)を使うと分かります。
+ビルドしたバイナリをMSYS2がインストールされていないマシンで使うには、MSYS2から必要なDLLを`c:\emacs-26.2\bin`以下にコピーして持っていく必要があります。このレポジトリにある `msys2-dll-copy.sh` を使うと良いでしょう。配付しているzipアーカイヴには必要なDLLを入れたつもりですが、抜けがあるかもしれませんので、その場合は自分でコピーしてください。DLLの依存関係に関しては、[Dependency Walker](http://www.dependencywalker.com/)を使うと分かります。
 
 #### おまけ C/Migemo ####
 
@@ -161,9 +162,15 @@ $ make bootstrap; make install-strip
 
 最近のWindows 10の更新（1803?）で何かおかしくなったらしく、半角/全角キー等を押してIMEをオンにしようとしても日本語入力が有効にならないという問題が発生しています。一度マウスでEmacsのウィンドウを移動したり、リサイズすると直るようです。[ここでの議論](https://github.com/chuntaro/NTEmacs64/issues/3)を参照してください。
 
+どうやらWindowsのほうで何か直したらしく、現在の1809ではこの問題は発生していません。
+
+### ewwでhttpsなサイトが開けない
+
+GNUTLS（libgnutls-30.dll）が3.6.3以降だと、ewwでhttpsなサイトが開けないようです。MSYS2のGNUTLSは2019年5月現在すでに3.6.7.1になっているので、[GitlabのGNUTLSのサイトから落とした3.6.3のDLL](https://gitlab.com/gnutls/gnutls/builds/artifacts/gnutls_3_6_3/download?job=MinGW64.DLLs)に入れ替えてあります。
+
 ### ImageMagick7への対応
 
-Emacsは26.1の時点でもImageMagick6までの対応で、バージョン7には対応していません。よってこのビルドにもImageMagickは組み込んでいません。
+Emacsは26.2の時点でもImageMagick6までの対応で、バージョン7には対応していません。よってこのビルドにもImageMagickは組み込んでいません。
 
 一応ImageMagick7に対応させるパッチは用意しましたが、思ったように動かないので、パッチのみの提供とします。興味のある方は試してみてください。
 
