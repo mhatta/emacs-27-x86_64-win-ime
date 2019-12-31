@@ -97,7 +97,7 @@ $ pacman -S --needed base-devel \
 
 ### Emacsのソースコードをダウンロード
 
-MSYS2のシェルから`$ wget http://ftpmirror.gnu.org/emacs/emacs-26.2.tar.xz`を実行してEmacsのソースコードをダウンロードし、`$ tar xJf emacs-26.2.tar.xz`で展開します。`c:\` の直下に展開（`c:\emacs-26.2` のように）するのがよいでしょう。
+MSYS2のシェルから`$ wget http://ftpmirror.gnu.org/emacs/emacs-26.3.tar.xz`を実行してEmacsのソースコードをダウンロードし、`$ tar xvf emacs-26.3.tar.xz`で展開します。`c:\` の直下に展開（`c:\emacs-26.2` のように）するのがよいでしょう。
 
 ### IMEパッチを当てる
 
