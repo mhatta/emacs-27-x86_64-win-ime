@@ -4,7 +4,7 @@ GNU Emacs 26.3を、Windows向けに64bitでビルドしたものです。[公�
 
 26.3から日本語入力時に未確定文字のインライン表示ができるようになったので、ただ日本語が入力したいというだけであればパッチあては必要なくなったのですが、依然としてw32-ime.elは含まれていませんので一応バイナリを提供します。
 
-ダウンロードは[こちら](https://github.com/mhatta/emacs-26-x86_64-win-ime/raw/master/emacs-26.3-x86_64-win-ime-20191231.zip)から。
+ダウンロードは[こちら](https://github.com/mhatta/emacs-26-x86_64-win-ime/raw/master/emacs-26.3_x86_64-win-ime-20191231.zip)から。
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
