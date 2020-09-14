@@ -2,7 +2,7 @@
 
 GNU Emacs 27.1を、Windows向けに64bitでビルドしたものです。[公式のWindowsビルド](http://ftpmirror.gnu.org/emacs/windows/)の同等物に、いわゆるIMEパッチを当てています。よってストレス無く日本語入力できると思いますが、いきなり落ちたりする可能性もありますので、注意してお使いください。
 
-26.3から日本語入力時に未確定文字のインライン表示ができるようになったので、ただ日本語が入力したいというだけであればパッチあては必要なくなったのですが、依然としてw32-ime.elは含まれていませんので一応バイナリを提供します。
+26.3から日本語入力時に未確定文字のインライン表示ができるようになったので、ただ日本語が入力したいというだけであればパッチあては必要なくなったのですが、依然としてw32-ime.elは含まれていませんので一応バイナリを提供します。今後は[](https://github.com/trueroad/tr-emacs-ime-module)などが進むべき道かもしれません…。
 
 ダウンロードは[こちら](https://github.com/mhatta/emacs-27-x86_64-win-ime/raw/master/emacs-27.1_x86_64-win-ime-20200914.zip)から。
 
@@ -67,9 +67,9 @@ GNU Emacs 27.1を、Windows向けに64bitでビルドしたものです。[公�
 
 ## ビルド方法
 
-ビルド方法は基本的に[https://github.com/chuntaro/NTEmacs64](https://github.com/chuntaro/NTEmacs64)を踏襲しています。大体一式で3～4GB程度の空き容量が必要のようです。なお、当方は64bit版の Windows 10 Pro 1909（Build 18363.535）上でビルドしています。
+ビルド方法は基本的に[https://github.com/chuntaro/NTEmacs64](https://github.com/chuntaro/NTEmacs64)を踏襲しています。大体一式で3～4GB程度の空き容量が必要のようです。なお、当方は64bit版の Windows 10 Pro 1909（Build 18363.1082）上でビルドしています。
 
-なお、画像に関してはGIF, JPEG, PNG, SVG, TIFF, XPMに対応しています（後述しますが、ImageMagickは組み込んでいません）。GNUTLSにも対応していますので、Emacs Lispで書かれたウェブブラウザewwも動作します。
+なお、画像に関してはGIF, JPEG, PNG, SVG, TIFF, XPMに対応しています（後述しますが、ImageMagickは組み込んでいません）。27.1からはImageMagickに頼らない画像の操作に対応したようです。また、GNUTLSにも対応していますので、Emacs Lispで書かれたウェブブラウザewwも動作します。
 
 ### MSYS2のインストール
 
