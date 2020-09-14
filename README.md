@@ -1,15 +1,15 @@
-# 64bit版 GNU Emacs 26.3 for Windows（w/ IMEパッチ）
+# 64bit版 GNU Emacs 27.1 for Windows（w/ IMEパッチ）
 
-GNU Emacs 26.3を、Windows向けに64bitでビルドしたものです。[公式のWindowsビルド](http://ftpmirror.gnu.org/emacs/windows/)の同等物に、いわゆるIMEパッチを当てています。よってストレス無く日本語入力できると思いますが、いきなり落ちたりする可能性もありますので、注意してお使いください。
+GNU Emacs 27.1を、Windows向けに64bitでビルドしたものです。[公式のWindowsビルド](http://ftpmirror.gnu.org/emacs/windows/)の同等物に、いわゆるIMEパッチを当てています。よってストレス無く日本語入力できると思いますが、いきなり落ちたりする可能性もありますので、注意してお使いください。
 
 26.3から日本語入力時に未確定文字のインライン表示ができるようになったので、ただ日本語が入力したいというだけであればパッチあては必要なくなったのですが、依然としてw32-ime.elは含まれていませんので一応バイナリを提供します。
 
-ダウンロードは[こちら](https://github.com/mhatta/emacs-26-x86_64-win-ime/raw/master/emacs-26.3_x86_64-win-ime-20191231.zip)から。
+ダウンロードは[こちら](https://github.com/mhatta/emacs-27-x86_64-win-ime/raw/master/emacs-27.1_x86_64-win-ime-20200914.zip)から。
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
 **Table of Contents**
 
-- [64bit版 GNU Emacs 26.3 for Windows（w/ IMEパッチ）](#64bit版-gnu-emacs-263-for-windowsw-imeパッチ)
+- [64bit版 GNU Emacs 27.1 for Windows（w/ IMEパッチ）](#64bit版-gnu-emacs-271-for-windowsw-imeパッチ)
     - [実行方法](#実行方法)
         - [init.elの設定](#initelの設定)
     - [ビルド方法](#ビルド方法)
@@ -31,7 +31,7 @@ GNU Emacs 26.3を、Windows向けに64bitでビルドしたものです。[公�
 
 ## 実行方法
 
-ダウンロードしたzipアーカイヴを展開し、`emacs-26.3\bin\runemacs.exe` を実行してください。
+ダウンロードしたzipアーカイヴを展開し、`emacs-27.1\bin\runemacs.exe` を実行してください。
 
 ### init.elの設定
 
@@ -99,15 +99,15 @@ $ pacman -S --needed base-devel \
 
 ### Emacsのソースコードをダウンロード
 
-MSYS2のシェルから`$ wget http://ftpmirror.gnu.org/emacs/emacs-26.3.tar.xz`を実行してEmacsのソースコードをダウンロードし、`$ tar xvf emacs-26.3.tar.xz`で展開します。`c:\` の直下に展開（`c:\emacs-26.2` のように）するのがよいでしょう。
+MSYS2のシェルから`$ wget http://ftpmirror.gnu.org/emacs/emacs-27.1.tar.xz`を実行してEmacsのソースコードをダウンロードし、`$ tar xvf emacs-27.1.tar.xz`で展開します。`c:\` の直下に展開（`c:\emacs-27.1` のように）するのがよいでしょう。
 
 ### IMEパッチを当てる
 
-本レポジトリから`emacs-26.3-windows-ime-（日付）.patch`をダウンロードし、
+本レポジトリから`emacs-27.1-windows-ime-（日付）.patch`をダウンロードし、
 
 ```
-$ cd /c/emacs-26.3
-$ patch -p1 < /path/to/emacs-26.3-windows-ime-（日付）.patch
+$ cd /c/emacs-27.1
+$ patch -p1 < /path/to/emacs-27.1-windows-ime-（日付）.patch
 ```
 
 でパッチを当てます。その上で、`$ ./autogen.sh`を実行して`configure`スクリプトを更新してください。なお、このパッチは[rzl24oziさんが整理してくださったもの](https://gist.github.com/rzl24ozi/008d32c1f0742d3d2901295bf0366efa)をベースにしています。
@@ -117,10 +117,10 @@ $ patch -p1 < /path/to/emacs-26.3-windows-ime-（日付）.patch
 `configure`を実行します。
 
 ```
-$ CFLAGS='-O2 -march=x86-64 -mtune=generic -static -s -g0' LDFLAGS='-s' ./configure --prefix=/c/emacs-26.3 --without-dbus --without-compress-install --with-modules
+$ CFLAGS='-O2 -march=x86-64 -mtune=generic -static -s -g0' LDFLAGS='-s' ./configure --prefix=/c/emacs-27.1 --without-dbus --without-compress-install
 ```
 
-[chuntaroさんのビルド](https://github.com/chuntaro/NTEmacs64)ではCFLAGSに`-Ofast -march=x86-64 -mtune=corei7`を与えてコンパイルしていますが、[このあたりの議論](https://www.reddit.com/r/emacs/comments/7gex1q/emacs_64bit_for_windows_with_imagemagick_7/)を見るとEmacsの場合は`-O2`のほうがパフォーマンスが良いらしいので、`-O2`に戻しました。
+[chuntaroさんのビルド](https://github.com/chuntaro/NTEmacs64)ではCFLAGSに`-Ofast -march=x86-64 -mtune=corei7`を与えてコンパイルしていますが、[このあたりの議論](https://www.reddit.com/r/emacs/comments/7gex1q/emacs_64bit_for_windows_with_imagemagick_7/)を見るとEmacsの場合は`-O2`のほうがパフォーマンスが良いらしいので、`-O2`に戻しました。なお、27.1からダイナミック・モジュールはデフォルトでサポートされるようになったので、`--with-modules`は不要です。
 
 `configure`が終わったら、
 
@@ -128,11 +128,11 @@ $ CFLAGS='-O2 -march=x86-64 -mtune=generic -static -s -g0' LDFLAGS='-s' ./config
 $ make bootstrap; make install-strip
 ```
 
-で`c:\emacs-26.3`以下にインストールされます。
+で`c:\emacs-27.1`以下にインストールされます。
 
 ### DLLのコピー
 
-ビルドしたバイナリをMSYS2がインストールされていないマシンで使うには、MSYS2から必要なDLLを`c:\emacs-26.3\bin`以下にコピーして持っていく必要があります。このレポジトリにある `msys2-dll-copy.sh` を使うと良いでしょう。配付しているzipアーカイヴには必要なDLLを入れたつもりですが、抜けがあるかもしれませんので、その場合は自分でコピーしてください。DLLの依存関係に関しては、[Dependency Walker](http://www.dependencywalker.com/)を使うと分かります。
+ビルドしたバイナリをMSYS2がインストールされていないマシンで使うには、MSYS2から必要なDLLを`c:\emacs-27.1\bin`以下にコピーして持っていく必要があります。このレポジトリにある `msys2-dll-copy.sh` を使うと良いでしょう。配付しているzipアーカイヴには必要なDLLを入れたつもりですが、抜けがあるかもしれませんので、その場合は自分でコピーしてください。DLLの依存関係に関しては、[Dependency Walker](http://www.dependencywalker.com/)を使うと分かります。
 
 #### おまけ C/Migemo ####
 
@@ -164,7 +164,7 @@ $ make bootstrap; make install-strip
 
 以前のWindows 10の更新（1803?）で何かおかしくなったらしく、半角/全角キー等を押してIMEをオンにしようとしても日本語入力が有効にならないという問題が発生していました。一度マウスでEmacsのウィンドウを移動したり、リサイズすると直るようです。[ここでの議論](https://github.com/chuntaro/NTEmacs64/issues/3)を参照してください。
 
-どうやらWindowsのほうで何か直したらしく、現在の1909ではこの問題は発生していません。
+どうやらWindowsのほうで何か直したらしく、1909以降ではこの問題は発生していません。
 
 現在でも、Google日本語入力を使うと、日本語入力は普通にできるのですがウィンドウを動かしたりしないとサジェスト等が表示されないという問題があるようです（Microsoft IMEやATOK 2017では起こらない）。そもそも根本原因がよく分かりません…。
 
@@ -172,7 +172,7 @@ $ make bootstrap; make install-strip
 
 GNUTLS（libgnutls-30.dll）が3.6.3以降だと、ewwでhttpsなサイトが開けないようです。MSYS2のGNUTLSは2019年5月現在すでに3.6.7.1になっているので、[GitlabのGNUTLSのサイトから落とした3.6.3のDLL](https://gitlab.com/gnutls/gnutls/builds/artifacts/gnutls_3_6_3/download?job=MinGW64.DLLs)に入れ替えてあります。
 
-26.3ではMSYS2最新のGNUTLSのままでも動くようなので、入れ替えていません。
+26.3以降ではMSYS2最新のGNUTLSのままでも動くようなので、入れ替えていません。
 
 ### ImageMagick7への対応
 
