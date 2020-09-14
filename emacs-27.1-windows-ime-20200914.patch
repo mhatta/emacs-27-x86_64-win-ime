@@ -1,59 +1,18 @@
-diff -urN emacs-27.1.orig/configure emacs-27.1/configure
---- emacs-27.1.orig/configure	2020-09-14 14:08:53.639420000 +0900
-+++ emacs-27.1/configure	2020-09-14 14:14:26.912084700 +0900
-@@ -1630,6 +1630,9 @@
- with_xim
- with_ns
- with_w32
-+with_w32_ime
-+with_reconversion
-+with_documentfeed
- with_gpm
- with_dbus
- with_gconf
-@@ -2448,6 +2451,9 @@
-   --with-ns               use Nextstep (macOS Cocoa or GNUstep) windowing
-                           system. On by default on macOS.
-   --with-w32              use native MS Windows GUI in a Cygwin build
-+  --without-w32-ime       don't compile with W32-IME support
-+  --without-reconversion  don't compile with RECONVERSION support
-+  --without-documentfeed  don't compile with DOCUMENTFEED support
-   --without-gpm           don't use -lgpm for mouse support on a GNU/Linux
-                           console
-   --without-dbus          don't compile with D-Bus support
-@@ -4650,6 +4656,31 @@
+diff -urN emacs-27.1.orig/configure.ac emacs-27.1/configure.ac
+--- emacs-27.1.orig/configure.ac	2020-09-14 14:08:53.683423700 +0900
++++ emacs-27.1/configure.ac	2020-09-14 16:12:09.698685200 +0900
+@@ -448,6 +448,10 @@
+ On by default on macOS.])],[],[with_ns=maybe])
+ OPTION_DEFAULT_OFF([w32], [use native MS Windows GUI in a Cygwin build])
  
- 
- 
-+# Check whether --with-w32-ime was given.
-+if test "${with_w32_ime+set}" = set; then :
-+  withval=$with_w32_ime;
-+else
-+     with_w32_ime=$with_features
-+fi
++OPTION_DEFAULT_ON([w32-ime], [don't compile with W32-IME support])
++OPTION_DEFAULT_ON([reconversion], [don't compile with RECONVERSION support])
++OPTION_DEFAULT_ON([documentfeed], [don't compile with DOCUMENTFEED support])
 +
-+
-+# Check whether --with-reconversion was given.
-+if test "${with_reconversion+set}" = set; then :
-+  withval=$with_reconversion;
-+else
-+     with_reconversion=$with_features
-+fi
-+
-+
-+# Check whether --with-documentfeed was given.
-+if test "${with_documentfeed+set}" = set; then :
-+  withval=$with_documentfeed;
-+else
-+     with_documentfeed=$with_features
-+fi
-+
-+
-+
- # Check whether --with-gpm was given.
- if test "${with_gpm+set}" = set; then :
-   withval=$with_gpm;
-@@ -34553,6 +34584,80 @@
+ OPTION_DEFAULT_ON([gpm],[don't use -lgpm for mouse support on a GNU/Linux console])
+ OPTION_DEFAULT_ON([dbus],[don't compile with D-Bus support])
+ AC_ARG_WITH([gconf],[AS_HELP_STRING([--with-gconf],
+@@ -5642,6 +5646,42 @@
    ACL_SUMMARY=no
  fi
  
@@ -61,69 +20,31 @@ diff -urN emacs-27.1.orig/configure emacs-27.1/configure
 +if test "${HAVE_W32}" = "yes"; then
 +  if test "${with_w32_ime}" != "no"; then
 +    USE_W32_IME=yes
-+
-+$as_echo "#define USE_W32_IME 1" >>confdefs.h
-+
++    AC_DEFINE(USE_W32_IME, 1, [Define to support W32-IME.])
 +
 +    RECONVERSION=no
 +    if test "${with_reconversion}" != "no"; then
-+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether RECONVERTSTRING is declared" >&5
-+$as_echo_n "checking whether RECONVERTSTRING is declared... " >&6; }
-+if ${emacs_cv_have_reconvertstring+:} false; then :
-+  $as_echo_n "(cached) " >&6
-+else
-+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-+/* end confdefs.h.  */
-+
++      AC_CACHE_CHECK([whether RECONVERTSTRING is declared],
++        emacs_cv_have_reconvertstring,
++        [AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 +#include <windows.h>
-+#include <imm.h>
-+int
-+main ()
-+{
-+RECONVERTSTRING
-+  ;
-+  return 0;
-+}
-+_ACEOF
-+if ac_fn_c_try_link "$LINENO"; then :
-+  emacs_cv_have_reconvertstring=yes
-+else
-+  emacs_cv_have_reconvertstring=no
-+fi
-+rm -f core conftest.err conftest.$ac_objext \
-+    conftest$ac_exeext conftest.$ac_ext
-+fi
-+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $emacs_cv_have_reconvertstring" >&5
-+$as_echo "$emacs_cv_have_reconvertstring" >&6; }
++#include <imm.h>]], [[RECONVERTSTRING]])],
++        emacs_cv_have_reconvertstring=yes, emacs_cv_have_reconvertstring=no)])
 +      if test "$emacs_cv_have_reconvertstring" = "yes"; then
 +        RECONVERSION=yes
-+
-+$as_echo "#define RECONVERSION 1" >>confdefs.h
-+
-+
-+$as_echo "#define HAVE_RECONVERTSTRING 1" >>confdefs.h
-+
++        AC_DEFINE(RECONVERSION, 1, [Define to support RECONVERSION.])
++        AC_DEFINE(HAVE_RECONVERTSTRING, 1, [Define to 1 if you have RECONVERTSTRING.])
 +
 +        DOCUMENTFEED=no
 +        if test "${with_documentfeed}" != "no"; then
-+          ac_fn_c_check_decl "$LINENO" "IMR_DOCUMENTFEED" "ac_cv_have_decl_IMR_DOCUMENTFEED" "
++          AC_CHECK_DECL(IMR_DOCUMENTFEED, HAVE_IMR_DOCUMENTFEED=yes,
++            HAVE_IMR_DOCUMENTFEED=no,[[
 +#include <windows.h>
-+#include <imm.h>
-+"
-+if test "x$ac_cv_have_decl_IMR_DOCUMENTFEED" = xyes; then :
-+  HAVE_IMR_DOCUMENTFEED=yes
-+else
-+  HAVE_IMR_DOCUMENTFEED=no
-+fi
-+
++#include <imm.h>]])
 +          if test "$ac_cv_have_decl_IMR_DOCUMENTFEED" = "yes"; then
 +            DOCUMENTFEED=yes
-+
-+$as_echo "#define DOCUMENTFEED 1" >>confdefs.h
-+
-+
-+$as_echo "#define HAVE_IMR_DOCUMENTFEED 1" >>confdefs.h
-+
++            AC_DEFINE(DOCUMENTFEED, 1, [Define to support DOCUMENTFEED.])
++            AC_DEFINE(HAVE_IMR_DOCUMENTFEED, 1, [Define to 1 if you have IMR_DOCUMENTFEED.])
 +          fi
 +        fi
 +      fi
@@ -132,11 +53,39 @@ diff -urN emacs-27.1.orig/configure emacs-27.1/configure
 +fi
 +
  emacs_standard_dirs='Standard dirs'
- $as_echo "
+ AS_ECHO(["
  Configured for '${canonical}'.
+@@ -5695,6 +5735,10 @@
+     AS_VAR_APPEND([emacs_config_features], ["$optsep$opt"])
+     optsep=' '
+ done
++if test "${USE_W32_IME}" = "yes"; then
++  opt=W32_IME
++  AS_VAR_APPEND([emacs_config_features], ["$optsep$opt"])
++fi
+ AC_DEFINE_UNQUOTED(EMACS_CONFIG_FEATURES, "${emacs_config_features}",
+   [Summary of some of the main features enabled by configure.])
+ 
+@@ -5736,6 +5780,16 @@
+   Which dumping strategy does Emacs use?                  ${with_dumping}
+ "])
+ 
++if test "${HAVE_W32}" = "yes"; then
++   AS_ECHO(["  Does Emacs support W32-IME?                             ${USE_W32_IME}"])
++   if test "${USE_W32_IME}" = "yes"; then
++      AS_ECHO(["  Does Emacs support RECONVERSION?                        ${RECONVERSION}"])
++      if test "${RECONVERSION}" = "yes"; then
++         AS_ECHO(["  Does Emacs support DOCUMENTFEED?                        ${DOCUMENTFEED}"])
++      fi
++   fi
++fi
++
+ if test -n "${EMACSDATA}"; then
+    AS_ECHO(["  Environment variable EMACSDATA set to:                  $EMACSDATA"])
+ fi
 diff -urN emacs-27.1.orig/lisp/international/smart-ime.el emacs-27.1/lisp/international/smart-ime.el
 --- emacs-27.1.orig/lisp/international/smart-ime.el	1970-01-01 09:00:00.000000000 +0900
-+++ emacs-27.1/lisp/international/smart-ime.el	2020-09-14 14:14:26.959082100 +0900
++++ emacs-27.1/lisp/international/smart-ime.el	2020-09-14 16:04:19.218273800 +0900
 @@ -0,0 +1,172 @@
 +;;; smart-ime.el - smart Input Method -*- lexical-binding: t -*-
 +;;
@@ -312,7 +261,7 @@ diff -urN emacs-27.1.orig/lisp/international/smart-ime.el emacs-27.1/lisp/intern
 +;; -*- mode: Emacs-Lisp; coding: euc-jp-unix -*-
 diff -urN emacs-27.1.orig/lisp/international/w32-ime.el emacs-27.1/lisp/international/w32-ime.el
 --- emacs-27.1.orig/lisp/international/w32-ime.el	1970-01-01 09:00:00.000000000 +0900
-+++ emacs-27.1/lisp/international/w32-ime.el	2020-09-14 14:14:26.964082700 +0900
++++ emacs-27.1/lisp/international/w32-ime.el	2020-09-14 16:04:19.222274400 +0900
 @@ -0,0 +1,200 @@
 +;;;;; w32-ime.el ---- Meadow features for NTEmacs. -*- lexical-binding: t -*-
 +;;
@@ -516,7 +465,7 @@ diff -urN emacs-27.1.orig/lisp/international/w32-ime.el emacs-27.1/lisp/internat
 +(provide 'w32-ime)
 diff -urN emacs-27.1.orig/lisp/loadup.el emacs-27.1/lisp/loadup.el
 --- emacs-27.1.orig/lisp/loadup.el	2020-09-14 14:08:51.443421300 +0900
-+++ emacs-27.1/lisp/loadup.el	2020-09-14 14:14:26.967083200 +0900
++++ emacs-27.1/lisp/loadup.el	2020-09-14 16:04:19.226276100 +0900
 @@ -285,34 +285,47 @@
  (load "emacs-lisp/tabulated-list")
  (load "buff-menu")
@@ -592,7 +541,7 @@ diff -urN emacs-27.1.orig/lisp/loadup.el emacs-27.1/lisp/loadup.el
  (if (eq system-type 'ms-dos)
 diff -urN emacs-27.1.orig/src/config.in emacs-27.1/src/config.in
 --- emacs-27.1.orig/src/config.in	2020-09-14 14:08:53.453420800 +0900
-+++ emacs-27.1/src/config.in	2020-09-14 14:14:26.973082400 +0900
++++ emacs-27.1/src/config.in	2020-09-14 16:04:19.230273200 +0900
 @@ -102,6 +102,9 @@
  #endif
  
@@ -645,7 +594,7 @@ diff -urN emacs-27.1.orig/src/config.in emacs-27.1/src/config.in
  #undef USE_XCB
 diff -urN emacs-27.1.orig/src/frame.c emacs-27.1/src/frame.c
 --- emacs-27.1.orig/src/frame.c	2020-09-14 14:08:53.481421900 +0900
-+++ emacs-27.1/src/frame.c	2020-09-14 14:14:26.981083700 +0900
++++ emacs-27.1/src/frame.c	2020-09-14 16:04:19.237283100 +0900
 @@ -1367,8 +1367,24 @@
  
     The value of NORECORD is passed as argument to Fselect_window.  */
@@ -683,7 +632,7 @@ diff -urN emacs-27.1.orig/src/frame.c emacs-27.1/src/frame.c
    {"inhibit-double-buffering",  SYMBOL_INDEX (Qinhibit_double_buffering)},
 diff -urN emacs-27.1.orig/src/keyboard.c emacs-27.1/src/keyboard.c
 --- emacs-27.1.orig/src/keyboard.c	2020-09-14 14:08:53.497422200 +0900
-+++ emacs-27.1/src/keyboard.c	2020-09-14 14:14:26.998110300 +0900
++++ emacs-27.1/src/keyboard.c	2020-09-14 16:04:19.251274200 +0900
 @@ -331,6 +331,11 @@
  
  static struct timespec timer_last_idleness_start_time;
@@ -820,7 +769,7 @@ diff -urN emacs-27.1.orig/src/keyboard.c emacs-27.1/src/keyboard.c
       time through.  */
 diff -urN emacs-27.1.orig/src/w32fns.c emacs-27.1/src/w32fns.c
 --- emacs-27.1.orig/src/w32fns.c	2020-09-14 14:08:53.582422800 +0900
-+++ emacs-27.1/src/w32fns.c	2020-09-14 14:14:27.022087400 +0900
++++ emacs-27.1/src/w32fns.c	2020-09-14 16:04:19.273277900 +0900
 @@ -73,19 +73,87 @@
  #include <imm.h>
  #include <windowsx.h>
@@ -2157,7 +2106,7 @@ diff -urN emacs-27.1.orig/src/w32fns.c emacs-27.1/src/w32fns.c
    defsubr (&Sfile_system_info);
 diff -urN emacs-27.1.orig/src/w32font.c emacs-27.1/src/w32font.c
 --- emacs-27.1.orig/src/w32font.c	2020-09-14 14:08:53.583421700 +0900
-+++ emacs-27.1/src/w32font.c	2020-09-14 14:14:27.046082900 +0900
++++ emacs-27.1/src/w32font.c	2020-09-14 16:04:19.292275700 +0900
 @@ -55,7 +55,10 @@
  #define JOHAB_CHARSET 130
  #endif
@@ -2184,7 +2133,7 @@ diff -urN emacs-27.1.orig/src/w32font.c emacs-27.1/src/w32font.c
    Lisp_Object tmp, extra;
 diff -urN emacs-27.1.orig/src/w32font.h emacs-27.1/src/w32font.h
 --- emacs-27.1.orig/src/w32font.h	2020-09-14 14:08:53.584420200 +0900
-+++ emacs-27.1/src/w32font.h	2020-09-14 14:14:27.054087000 +0900
++++ emacs-27.1/src/w32font.h	2020-09-14 16:04:19.299275900 +0900
 @@ -83,6 +83,9 @@
  int uniscribe_check_otf (LOGFONT *font, Lisp_Object otf_spec);
  
@@ -2197,7 +2146,7 @@ diff -urN emacs-27.1.orig/src/w32font.h emacs-27.1/src/w32font.h
  
 diff -urN emacs-27.1.orig/src/w32term.c emacs-27.1/src/w32term.c
 --- emacs-27.1.orig/src/w32term.c	2020-09-14 14:08:53.630420300 +0900
-+++ emacs-27.1/src/w32term.c	2020-09-14 14:14:27.060090100 +0900
++++ emacs-27.1/src/w32term.c	2020-09-14 16:04:19.304276300 +0900
 @@ -5676,6 +5676,107 @@
  	  break;
  #endif
@@ -2331,7 +2280,7 @@ diff -urN emacs-27.1.orig/src/w32term.c emacs-27.1/src/w32term.c
  void
 diff -urN emacs-27.1.orig/src/w32term.h emacs-27.1/src/w32term.h
 --- emacs-27.1.orig/src/w32term.h	2020-09-14 14:08:53.596422800 +0900
-+++ emacs-27.1/src/w32term.h	2020-09-14 14:14:27.073083700 +0900
++++ emacs-27.1/src/w32term.h	2020-09-14 16:04:19.314275400 +0900
 @@ -634,6 +634,8 @@
  #endif /* WM_MOUSEHWHEEL  */
  #ifndef WM_APPCOMMAND
@@ -2453,7 +2402,7 @@ diff -urN emacs-27.1.orig/src/w32term.h emacs-27.1/src/w32term.h
 +#endif /* USE_W32_IME */
 diff -urN emacs-27.1.orig/src/window.c emacs-27.1/src/window.c
 --- emacs-27.1.orig/src/window.c	2020-09-14 14:08:53.603422100 +0900
-+++ emacs-27.1/src/window.c	2020-09-14 14:14:27.081086700 +0900
++++ emacs-27.1/src/window.c	2020-09-14 16:04:19.320275300 +0900
 @@ -518,6 +518,9 @@
  {
    struct window *w;
@@ -2526,7 +2475,7 @@ diff -urN emacs-27.1.orig/src/window.c emacs-27.1/src/window.c
    defsubr (&Sminibuffer_window);
 diff -urN emacs-27.1.orig/src/xdisp.c emacs-27.1/src/xdisp.c
 --- emacs-27.1.orig/src/xdisp.c	2020-09-14 14:08:53.605419200 +0900
-+++ emacs-27.1/src/xdisp.c	2020-09-14 14:14:27.108085800 +0900
++++ emacs-27.1/src/xdisp.c	2020-09-14 16:04:19.341275900 +0900
 @@ -12253,9 +12253,24 @@
    return vector;
  }
