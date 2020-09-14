@@ -2,7 +2,7 @@
 
 GNU Emacs 27.1を、Windows向けに64bitでビルドしたものです。[公式のWindowsビルド](http://ftpmirror.gnu.org/emacs/windows/)の同等物に、いわゆるIMEパッチを当てています。よってストレス無く日本語入力できると思いますが、いきなり落ちたりする可能性もありますので、注意してお使いください。
 
-26.3から日本語入力時に未確定文字のインライン表示ができるようになったので、ただ日本語が入力したいというだけであればパッチあては必要なくなったのですが、依然としてw32-ime.elは含まれていませんので一応バイナリを提供します。今後は[](https://github.com/trueroad/tr-emacs-ime-module)などが進むべき道かもしれません…。
+26.3から日本語入力時に未確定文字のインライン表示ができるようになったので、ただ日本語が入力したいというだけであればパッチあては必要なくなったのですが、依然としてw32-ime.elは含まれていませんので一応バイナリを提供します。今後は[tr-emacs-ime-module](https://github.com/trueroad/tr-emacs-ime-module)などが進むべき道かもしれません…。
 
 ダウンロードは[こちら](https://github.com/mhatta/emacs-27-x86_64-win-ime/raw/master/emacs-27.1_x86_64-win-ime-20200914.zip)から。
 
